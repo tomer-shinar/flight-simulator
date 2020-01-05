@@ -51,7 +51,7 @@ unordered_map<string, double> getMap(vector<string> names, vector<double> values
    * takes the names and vakues and put in map
    */
   unordered_map<string, double> mp;
-  for (int i = 0; i < names.size(); i++) {
+  for (unsigned i = 0; i < names.size(); i++) {
     mp.insert(pair<string, double>(names[i], values[i]));
   }
   return mp;

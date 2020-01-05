@@ -6,6 +6,7 @@
 #define FLIGHT_SIMULATOR__VAR_H_
 
 #include <string>
+#include <utility>
 
 using namespace std;
 
@@ -17,10 +18,11 @@ class Var {
   string name;
   double value;
  public:
-  Var(string name, double value) :name(name), value(value) {};
+  Var(string name, double value) :name(std::move(name)), value(value) {};
   string get_name() {return this->name;}
   double get_value() {return this->value;}
-  virtual double set_value(double new_val) {this->value = new_val;}
+  virtual void set_value(double new_val) {this->value = new_val;}
+  virtual ~Var() = default;
 };
 
 class WritingVar: public Var {
@@ -32,7 +34,7 @@ class WritingVar: public Var {
   bool new_data = false;
  public:
   WritingVar(string name, string target): Var(name, 0), write_to(target) {};
-  virtual double set_value(double new_val) {
+  virtual void set_value(double new_val) {
     new_data = true;
     Var::set_value(new_val);
   }
