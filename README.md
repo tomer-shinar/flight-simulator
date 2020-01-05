@@ -1,4 +1,6 @@
 # flight-simulator
+github link: https://github.com/tomer-shinar/flight-simulator
+this project is part of the cource Advanced Programming 1.
 this is an interpreter for flightgear. the main should receive a text file name, which will contain commands for the interpreter.
 the possible commands are:
 * openDataServer(port) - create a server on another thread that listen on port "port", read values from simulator and update vars that read from simulator.
