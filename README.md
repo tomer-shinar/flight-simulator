@@ -16,6 +16,9 @@ the possible commands are:
 
 every value and condition can be expression that containes doubles, vars from the scope, and the operators:
 +, -, *, /, ), (, ==, !=, <, >, <=, >=.
+
 each scope can access the outer scope, if a var is defined both in inner and outer scope, the inner scope var will hide the outer scope var.
+
 when a scope is ending, all vars in it are deleted.
+
 my implementation can support a condition command (if or while) inside another.
