@@ -273,6 +273,23 @@ void SleepCommand::execute(SymbolTable *s, mutex *mutex, list<Var*> *vars) {
   delete(exp);
 }
 
+void FuncCommand::execute(SymbolTable *s, mutex *mutex, list<Var *> *vars) {
+  /**
+   * run the function
+   */
+   //create scope to the func with the param in it
+   SymbolTable* funcScope = new SymbolTable(vars, mutex, s);
+   Expression* exp = s->getInterpreter().interpret(this->valueExpression);
+   funcScope->add(new Var(this->paramName, exp->calculate()));
+   delete(exp);
+   //run the block
+   for (Command* c: this->commands) {
+     c->execute(funcScope, mutex, vars);
+   }
+   //delete the scope
+   delete(funcScope);
+}
+
 string strip(string s) {
   while (s[0] == '\t' || s[0] == ' ') {
     //starts with tab

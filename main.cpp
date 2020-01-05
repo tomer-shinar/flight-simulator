@@ -18,6 +18,11 @@
 
 using namespace std;
 
+struct DefinedFunc {
+  list<Command*> commands;
+  string varName;
+};
+
 list<string> lexer(ifstream &is) {
   /**
    * read the file to list of lines
@@ -30,7 +35,8 @@ list<string> lexer(ifstream &is) {
   return lines;
 }
 
-list<Command*> parser(list<string>::iterator &it, list<string>::iterator end, bool* to_continue) {
+list<Command*> parser(list<string>::iterator &it, list<string>::iterator end, bool* to_continue,
+    map<string, DefinedFunc> funcs) {
   /**
    * parse the lines to commands
    */
@@ -51,17 +57,28 @@ list<Command*> parser(list<string>::iterator &it, list<string>::iterator end, bo
            to_continue));
      } else if (it->find(WHILE_COMMAND) == 0) {
        string condition = it->substr(strlen(WHILE_COMMAND), it->length() - 1 - strlen(WHILE_COMMAND));
-       commands.push_back(new WhileCommand(condition, parser(++it, end, to_continue)));
+       commands.push_back(new WhileCommand(condition, parser(++it, end, to_continue, funcs)));
      } else if (it->find(IF_COMMAND) == 0) {
        string condition = it->substr(strlen(IF_COMMAND), it->length() - 1 - strlen(IF_COMMAND));
-       commands.push_back(new IfCommand(condition, parser(++it, end, to_continue)));
+       commands.push_back(new IfCommand(condition, parser(++it, end, to_continue, funcs)));
      } else if (it->find(PRINT_COMMAND) == 0) {
        commands.push_back(new PrintCommand(it->substr(strlen(PRINT_COMMAND), it->length() - 1 - strlen(PRINT_COMMAND))));
      } else if (it->find(SLEEP_COMMAND) == 0) {
        commands.push_back(new SleepCommand(it->substr(strlen(SLEEP_COMMAND), it->length() - 1 - strlen(SLEEP_COMMAND))));
-     } else if (it->find("=") != -1) {
+     } else if (it->find("=") != string::npos) {
        commands.push_back(new AssignVarCommand(it->substr(0, it->find("=")),
            it->substr(it->find("=") + 1, it->length() - it->find("="))));
+     } else if (it->find("var") != string::npos) {
+       //func definition
+       string funcName = strip(it->substr(0, it->find("(") - 1));
+       string value = strip(it->substr(it->find("var") + strlen("var"), it->find(")") - it->find("var") - strlen("var")));
+       list<Command*> blockCommands = parser(++it, end, to_continue, funcs);
+       funcs.insert(pair<string, DefinedFunc>(funcName, DefinedFunc{blockCommands, value}));
+     } else if(it->find("(") != string::npos && funcs.find(it->substr(0, it->find("(") -1)) != funcs.end()) {
+       //this is a func call
+       DefinedFunc f = funcs[it->substr(0, it->find("(") -1)];
+       commands.push_back(new FuncCommand(f.commands, f.varName, it->substr(it->find("(") + 1,
+           it->find(")") - it->find("(") - 1)));
      }
      else if (!it->empty()) {
        throw "illegal command";
@@ -79,7 +96,8 @@ int main(int argc, char *argv[]) {
   //parsing
   bool toContinue = true;
   auto start = lines.begin();
-  list<Command*> commands = parser(start, lines.end(), &toContinue);
+  map<string, DefinedFunc> funcs;
+  list<Command*> commands = parser(start, lines.end(), &toContinue, funcs);
   //run commands
   list<Var*> vars;
   mutex mutex;

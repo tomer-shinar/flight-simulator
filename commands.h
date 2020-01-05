@@ -102,6 +102,17 @@ class SleepCommand: public Command {
   virtual void execute(SymbolTable* s, mutex* mutex, list<Var*>* vars);
 };
 
+class FuncCommand: public Command {
+ private:
+  list<Command*> commands; //inner block command
+  string valueExpression;
+  string paramName;
+ public:
+  FuncCommand(list<Command*> commands, string name, string ex): commands(std::move(commands)),
+  valueExpression(std::move(ex)), paramName(std::move(name)) {};
+  virtual void execute(SymbolTable* s, mutex* mutex, list<Var*>* vars);
+};
+
 
 string strip(string s);
 
