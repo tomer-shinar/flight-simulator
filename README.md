@@ -16,6 +16,8 @@ the possible commands are:
 * } - close a block.
 * Sleep(time) - sleep for time miliseconds
 * Print(mess) - print mess. can be string or value.
+* funcName(var x) { - define a function called funcName with param x.
+* funcName(value) - run the function funcName with the parameter value.
 
 
 every value and condition can be expression that containes doubles, vars from the scope, and the operators:
